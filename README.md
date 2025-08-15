@@ -17,4 +17,6 @@ With lazy:
     end
   }
 ```
+The above config will let you use the keybinding `<leader><map>` to toggle a todo item
+when you're on a line containing one.
 
