@@ -1,14 +1,45 @@
 local M = {}
 
+local could_contain_todo = function()
+  if vim.bo.filetype == "markdown" then
+    return true
+  end
+  local current_buf_id = vim.api.nvim_get_current_buf()
+  local filename = vim.api.nvim_buf_get_name(current_buf_id)
+
+  if string.lower(filename):match("todo$") then
+    return true
+  end
+  return false
+end
+
+
 -- the done marker - setting the default done marker
 -- will be overriden by the setup
 local done_marker = "x"
 
 --- Setup the plugin
----@param opts {done_marker: string|nil}
+---@param opts {
+--- done_marker: string|nil,
+--- no_autodetect_marker: boolean,
+---}|nil
 M.setup = function(opts)
-  if opts.done_marker then
+  if opts and opts.done_marker then
     done_marker = opts.done_marker
+  end
+  local should_autodected_marker = true
+  if opts and opts.no_autodetect_marker then
+    should_autodected_marker = false
+  end
+  if should_autodected_marker and could_contain_todo() then
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    for _, line in ipairs(lines) do
+      local marker = string.match(line, "^%s*- %[([xX])%] ")
+      if marker then
+        done_marker = marker
+        break
+      end
+    end
   end
 end
 
