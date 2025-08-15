@@ -1,7 +1,15 @@
 local M = {}
 
-M.setup = function()
-  print('hello')
+-- the done marker - setting the default done marker
+-- will be overriden by the setup
+local done_marker = "x"
+
+--- Setup the plugin
+---@param opts {done_marker: string|nil}
+M.setup = function(opts)
+  if opts.done_marker then
+    done_marker = opts.done_marker
+  end
 end
 
 M.toggle_todo_item = function()
@@ -12,7 +20,7 @@ M.toggle_todo_item = function()
 
   -- check if the line begins with something like `\s*- \[[ x]\] `
   local todo_pattern = "^%s*-%s*%[[ xX]?%]"
-  local start_match, end_match = current_line:find(todo_pattern)
+  local start_match, _ = current_line:find(todo_pattern)
 
   if start_match then
     -- if it does, then replace the x with whitespace or space with x
@@ -27,7 +35,7 @@ M.toggle_todo_item = function()
       if char_inside:match("[xX]") then
         new_char = " "
       else
-        new_char = "x"
+        new_char = done_marker
       end
 
       local new_line = current_line:sub(1, bracket_start_idx - 1) ..
